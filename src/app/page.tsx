@@ -1,6 +1,7 @@
-import SortSelect from "../components/SortSelect";
-import CarCard from "../components/CarCard";
-import Pagination from "../components/Pagination";
+import SortSelect from "@/components/SortSelect";
+import CarCard from "@/components/CarCard";
+import Pagination from "@/components/Pagination";
+import { Metadata } from "next";
 
 interface Car {
   unique_id: number;
@@ -11,36 +12,48 @@ interface Car {
   [key: string]: unknown;
 }
 
-async function getCars(searchParams: {
+export const metadata: Metadata = {
+  title: "Cars List",
+  description: "List of cars with pagination and sorting",
+};
+
+type SearchParams = {
   page?: string;
   sort?: string;
   order?: string;
-}) {
+};
+
+async function getCars(searchParams: SearchParams) {
   const params = new URLSearchParams({
     _limit: "12",
     _page: searchParams.page || "1",
   });
+
   if (searchParams.sort && searchParams.order) {
     params.set("_sort", searchParams.sort);
     params.set("_order", searchParams.order);
   }
+
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
   const res = await fetch(`${baseUrl}/api/cars?${params.toString()}`, {
     cache: "no-store",
   });
+
   return res.json();
 }
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: { page?: string; sort?: string; order?: string };
-}) {
-  const { data = [], meta = {} } = await getCars(searchParams);
-  console.log(meta);
+type Props = {
+  params: Promise<Record<string, string>>;
+  searchParams: Promise<SearchParams>;
+};
 
+export default async function Page(props: Props) {
+  const searchParams = await props.searchParams;
+  const { data = [], meta = {} } = await getCars(searchParams);
   const currentPage = Number(meta.page) || 1;
   const totalPages = Number(meta.last_page) || 1;
+
   return (
     <main className="container mx-auto p-4">
       <SortSelect currentOrder={searchParams.order} />

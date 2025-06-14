@@ -22,23 +22,23 @@ function getPages(current: number, total: number) {
     pages.push("...");
   }
   if (total > 1) pages.push(total);
-  // Убираем дубли
   return pages.filter((item, idx, arr) => arr.indexOf(item) === idx);
+}
+
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
 }
 
 export default function Pagination({
   currentPage,
   totalPages,
-}: {
-  currentPage: number;
-  totalPages: number;
-}) {
+}: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const safeCurrent = Number(currentPage) || 1;
   const safeTotal = Number(totalPages) || 1;
-  console.log({ currentPage });
 
   const goToPage = (page: number) => {
     if (page < 1 || page > safeTotal || page === safeCurrent) return;

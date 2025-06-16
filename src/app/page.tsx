@@ -22,6 +22,7 @@ type SearchParams = {
   sort?: string;
   order?: string;
 };
+
 async function getCars(searchParams: SearchParams) {
   const params = new URLSearchParams({
     _limit: "12",
@@ -33,8 +34,11 @@ async function getCars(searchParams: SearchParams) {
     params.set("_order", searchParams.order);
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  
+  const isServer = typeof window === "undefined";
+
+  const baseUrl = isServer
+    ? process.env.BASE_URL_SERVER || "http://localhost:3000"
+    : process.env.NEXT_PUBLIC_BASE_URL || "";
 
   try {
     const res = await fetch(`${baseUrl}/api/cars?${params.toString()}`, {

@@ -22,7 +22,6 @@ type SearchParams = {
   sort?: string;
   order?: string;
 };
-
 async function getCars(searchParams: SearchParams) {
   const params = new URLSearchParams({
     _limit: "12",
@@ -36,11 +35,24 @@ async function getCars(searchParams: SearchParams) {
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  const res = await fetch(`${baseUrl}/api/cars?${params.toString()}`, {
-    cache: "no-store",
-  });
+  try {
+    const res = await fetch(`${baseUrl}/api/cars?${params.toString()}`, {
+      cache: "no-store",
+    });
 
-  return res.json();
+    const contentType = res.headers.get("content-type");
+
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("❌ Ошибка от API:", res.status, text);
+      return { data: [], meta: { page: 1, last_page: 1 } };
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("🔥 Ошибка при fetch /api/cars:", error);
+    return { data: [], meta: { page: 1, last_page: 1 } };
+  }
 }
 
 type Props = {

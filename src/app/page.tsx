@@ -34,6 +34,7 @@ async function getCars(searchParams: SearchParams) {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  
 
   try {
     const res = await fetch(`${baseUrl}/api/cars?${params.toString()}`, {
